@@ -1,0 +1,51 @@
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Data files (optional - comment out if you want to track CSV files)
+*.csv
+
+# Results and output files
+results_*.json
+results_*.csv
+*.gif
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# PDFs (research papers - keep these out for now)
+*.pdf
+
+# Large image files
+*.jpg
+*.png
+
+# Office documents
+*.docx
+*.pptx
+
+# Temporary files
+*.tmp
+*.bak
