@@ -1,0 +1,237 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{enumitem}
+\usepackage{array}
+\usepackage{multirow}
+
+% Header and footer
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Trust Modeling in Stag Hunt Games}
+\fancyhead[R]{\today}
+\fancyfoot[C]{\thepage}
+
+% Custom colors
+\definecolor{darkblue}{RGB}{0,51,102}
+\definecolor{lightblue}{RGB}{173,216,230}
+
+\title{\textbf{\Large Trust Dynamics in Stag Hunt Games:\\A Computational Study of Bounded Rational Agents}}
+\author{Mobin Zarreh \\ Arizona State University}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section*{Executive Summary}
+
+This study develops and validates computational models of trust formation in strategic interactions using the Stag Hunt game framework. We compare a novel dual-state agent model incorporating psychological biases against a Bayesian rational benchmark, analyzing how different partner strategies affect trust evolution and decision-making outcomes.
+
+\section{Research Motivation and Objectives}
+
+\subsection{Problem Statement}
+Traditional game-theoretic models assume perfect rationality, but real-world agents exhibit psychological biases in trust formation. Understanding these dynamics is crucial for:
+\begin{itemize}[nosep]
+    \item Designing collaborative systems with human-AI interaction
+    \item Predicting behavior in multi-agent environments
+    \item Developing trust-aware algorithms for autonomous systems
+\end{itemize}
+
+\subsection{Research Questions}
+\begin{enumerate}[nosep]
+    \item How do psychological biases (loss aversion, surprise penalties) affect trust formation compared to rational Bayesian updating?
+    \item Which partner strategies most effectively build or erode trust over time?
+    \item What are the decision-making and payoff implications of different trust models?
+\end{enumerate}
+
+\section{Methodology}
+
+\subsection{Game Framework: Stag Hunt}
+We use the canonical Stag Hunt payoff matrix representing collaboration dilemmas:
+
+\begin{center}
+\begin{tabular}{c|c|c|}
+\multicolumn{1}{c}{} & \multicolumn{1}{c}{\textbf{Cooperate}} & \multicolumn{1}{c}{\textbf{Defect}} \\
+\cline{2-3}
+\textbf{Cooperate} & (4,4) & (0,3) \\
+\cline{2-3}
+\textbf{Defect} & (3,0) & (2,2) \\
+\cline{2-3}
+\end{tabular}
+\end{center}
+
+The critical threshold for cooperation is $p^* = \frac{2}{3}$ (probability partner cooperates).
+
+\subsection{Agent Models}
+
+\subsubsection{Model 1: Bayesian Rational Agent}
+Uses standard conjugate prior updating with Beta distribution:
+\begin{align}
+p_t &= \frac{\alpha_t}{\alpha_t + \beta_t} \\
+\alpha_{t+1} &= \alpha_t + \text{cooperation}_t \\
+\beta_{t+1} &= \beta_t + (1 - \text{cooperation}_t)
+\end{align}
+
+\subsubsection{Model 2: Dual-State Bounded Rational Agent}
+Maintains separate signal ($x$) and trust ($t$) with asymmetric updating:
+
+\textbf{Expected Probability:}
+\begin{equation}
+p_t = \frac{\varepsilon + x_t \cdot t_t}{2\varepsilon + t_t}
+\end{equation}
+where $\varepsilon = 0.5$ is the prior parameter.
+
+\textbf{Trust Update:} Category-weighted with psychological biases:
+\begin{equation}
+\text{Consistency} = \frac{W_M}{W_M + \lambda W_B + \mu W_U + \epsilon}
+\end{equation}
+
+Where:
+\begin{itemize}[nosep]
+    \item $W_M$: Weighted matches (expected = observed)
+    \item $W_B$: Weighted betrayals (expected cooperate, observed defect)
+    \item $W_U$: Weighted surprises (expected defect, observed cooperate)
+    \item $\lambda = 3.0$: Loss aversion parameter (betrayal penalty)
+    \item $\mu = 0.5$: Surprise penalty parameter
+\end{itemize}
+
+\textbf{Signal Update:} Exponentially weighted moving average with noise:
+\begin{equation}
+x_{t+1} = x_t + \eta(P_{\text{obs}} - x_t) + \mathcal{N}(0, \sigma^2)
+\end{equation}
+
+\subsection{Partner Strategies Tested}
+\begin{enumerate}[nosep]
+    \item \textbf{Fixed Strategies:} Always Cooperate/Defect, Random, Probabilistic
+    \item \textbf{Reactive Strategies:} Tit-for-Tat (Cooperate/Defect start)
+    \item \textbf{Temporal Strategies:} Periodic Cheater, Single Cycle
+    \item \textbf{Adaptive Strategies:} Strategic Cheater, Expectation Violation
+    \item \textbf{Learning Partners:} Belief-driven with own trust/signal dynamics
+\end{enumerate}
+
+\section{Key Findings}
+
+\subsection{Trust Formation Patterns}
+
+\textbf{Bayesian Agent:}
+\begin{itemize}[nosep]
+    \item Rapid convergence to true cooperation rates
+    \item Symmetric response to positive/negative evidence
+    \item Final posterior means: Always Cooperate (0.986), Always Defect (0.014)
+\end{itemize}
+
+\textbf{Dual-State Agent:}
+\begin{itemize}[nosep]
+    \item Slower trust recovery after betrayal due to loss aversion
+    \item Asymmetric updating creates persistent caution
+    \item More gradual belief updates with psychological realism
+\end{itemize}
+
+\subsection{Decision-Making Analysis}
+
+\textbf{Cooperation Rates by Strategy:}
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Partner Strategy} & \textbf{Bayesian} & \textbf{Dual-State} \\
+\midrule
+Always Cooperate & 100\% & 98.6\% \\
+Tit-for-Tat Coop & 88.6\% & 85.7\% \\
+Probabilistic (70\%) & 62.9\% & 60.8\% \\
+Strategic Cheater & 75.7\% & 8.7\% \\
+Always Defect & 0\% & 0\% \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Payoff Performance}
+
+The dual-state agent shows:
+\begin{itemize}[nosep]
+    \item \textbf{Higher resilience} against deceptive strategies
+    \item \textbf{Comparable performance} with honest partners
+    \item \textbf{Better risk management} in uncertain environments
+\end{itemize}
+
+\subsection{Loss Aversion Impact}
+
+Sensitivity analysis reveals:
+\begin{itemize}[nosep]
+    \item $\lambda \in [1.0, 5.0]$ significantly affects trust recovery time
+    \item Higher loss aversion → slower trust building but better exploitation resistance
+    \item Optimal $\lambda \approx 3.0$ balances trust formation with protection
+\end{itemize}
+
+\section{Technical Validation}
+
+\subsection{Model Consistency}
+\begin{itemize}[nosep]
+    \item Identical partner implementations across models
+    \item Same game mechanics and decision thresholds
+    \item Consistent random seeds for reproducibility
+    \item 70-round simulations with statistical significance testing
+\end{itemize}
+
+\subsection{Convergence Analysis}
+Both models show stable convergence patterns:
+\begin{itemize}[nosep]
+    \item Bayesian: Monotonic belief updates
+    \item Dual-State: Oscillatory convergence with psychological damping
+\end{itemize}
+
+\section{Implications and Applications}
+
+\subsection{Theoretical Contributions}
+\begin{enumerate}[nosep]
+    \item Novel dual-state architecture for bounded rational trust
+    \item Quantification of psychological bias effects in strategic games
+    \item Validated benchmark comparison framework
+\end{enumerate}
+
+\subsection{Practical Applications}
+\begin{itemize}[nosep]
+    \item \textbf{Human-AI Collaboration:} Trust-aware system design
+    \item \textbf{Multi-Agent Systems:} Robust cooperation protocols
+    \item \textbf{Behavioral Economics:} Empirical model validation
+    \item \textbf{Security Systems:} Adversary-resistant trust mechanisms
+\end{itemize}
+
+\section{Future Research Directions}
+
+\subsection{Model Extensions}
+\begin{itemize}[nosep]
+    \item Multi-agent trust networks
+    \item Dynamic loss aversion parameters
+    \item Integration with reputation systems
+    \item Real-world experimental validation
+\end{itemize}
+
+\subsection{Methodological Improvements}
+\begin{itemize}[nosep]
+    \item Bayesian parameter estimation from human data
+    \item Evolutionary dynamics in agent populations
+    \item Cross-cultural trust formation differences
+\end{itemize}
+
+\section{Conclusion}
+
+This study demonstrates that incorporating psychological realism into computational trust models significantly alters strategic behavior compared to rational benchmarks. The dual-state agent model provides a tractable framework for analyzing bounded rational trust dynamics while maintaining computational efficiency. Results suggest that loss aversion and asymmetric updating, while reducing short-term cooperation rates, enhance long-term robustness against exploitation.
+
+The validated comparison framework enables rigorous analysis of trust mechanisms in strategic interactions, with immediate applications in human-AI collaboration, multi-agent systems, and behavioral modeling.
+
+\vspace{0.5cm}
+\noindent\textbf{Keywords:} Trust dynamics, Stag Hunt game, Bounded rationality, Loss aversion, Multi-agent systems, Behavioral game theory
+
+\vspace{0.5cm}
+\noindent\textbf{Code Repository:} Available upon request with complete simulation implementations and analysis notebooks.
+
+\end{document}
