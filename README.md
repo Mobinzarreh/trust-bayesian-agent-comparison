@@ -2,9 +2,13 @@
 
 This repository contains the code for comparing trust-based and Bayesian learning agents in stag hunt games.
 
-## Main Notebook
+## Project Structure
 
-- `Trust_updated_focal_stoch_Betray.ipynb` - Primary analysis comparing trust-based (focal) and Bayesian agents
+- `notebooks/Trust_updated_focal_stoch_Betray.ipynb` - Primary analysis comparing trust-based (focal) and Bayesian agents
+- `trust_bayesian_agent_comparison/` - Python package containing agent implementations
+- `data/` - Directory for data files and results
+- `pyproject.toml` - Project configuration and dependencies
+- `poetry.lock` - Locked dependencies for reproducible installs
 
 ## Overview
 
@@ -26,14 +30,21 @@ Both agents play repeated stag hunt games against various partner strategies inc
 - Asymmetric trust updating with loss aversion
 - Comparative performance analysis
 
+## Installation
+
+This project uses Poetry for dependency management. To install:
+
+```bash
+poetry install
+```
+
 ## Requirements
 
-```python
-numpy
-pandas
-matplotlib
-joblib
-```
+The main dependencies are:
+- numpy
+- pandas
+- matplotlib
+- joblib
 
 ## Authors
 
