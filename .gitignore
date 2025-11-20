@@ -1,6 +1,9 @@
-# Jupyter Notebook checkpoints
-.ipynb_checkpoints/
-*/.ipynb_checkpoints/*
+# Keep only the main working file
+*.ipynb
+!Trust_updated_focal_stoch_Betray.ipynb
+
+# Keep documentation
+!README.md
 
 # Python
 __pycache__/
@@ -10,43 +13,22 @@ __pycache__/
 .Python
 env/
 venv/
-ENV/
-*.egg
-*.egg-info/
-dist/
-build/
+.venv/
 
-# Data files (optional - comment out if you want to track CSV files)
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# LaTeX
+*.aux
+*.log
+*.out
+*.toc
+*.tex
+
+# Data and results
+*.txt
 *.csv
-
-# Results and output files
-results_*.json
-results_*.csv
-*.gif
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
 
 # OS
 .DS_Store
 Thumbs.db
-
-# PDFs (research papers - keep these out for now)
-*.pdf
-
-# Large image files
-*.jpg
-*.png
-
-# Office documents
-*.docx
-*.pptx
-
-# Temporary files
-*.tmp
-*.bak
-LLM_Game_OPENAI.ipynb
