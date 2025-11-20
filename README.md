@@ -37,8 +37,7 @@ joblib
 
 ## Authors
 
-Systems Engineering Paper - ASU
-
+Mobin Zarreh
 ## License
 
 TBD
