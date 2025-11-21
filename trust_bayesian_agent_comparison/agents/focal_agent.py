@@ -14,7 +14,7 @@ from ..config import (
     STOCHASTIC,
     INVERSE_TEMPERATURE,
     EPS,
-    DECISION_THRESHOLD,
+    stag_indifference_threshold,
 )
 
 
@@ -75,7 +75,7 @@ class FocalAgent(BaseAgent):
             raise ValueError("lambda_surprise must be in [0, loss_aversion]")
         
         # State variables
-        self.x = u_i if u_i is not None else 1 - DECISION_THRESHOLD
+        self.x = u_i if u_i is not None else 1 - stag_indifference_threshold()
         self.t = t_init
         
         # Parameters

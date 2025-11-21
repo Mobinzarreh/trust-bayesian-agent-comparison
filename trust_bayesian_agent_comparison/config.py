@@ -39,8 +39,33 @@ PAYOFF_MATRIX = np.array([
     [[0, 3], [4, 4]]   # [Stag][Partner action][player_id]
 ])
 
-# Decision threshold for cooperation
-DECISION_THRESHOLD = 2/3  # Calculated from indifference condition
+def get_payoff(player1_strategy: int, player2_strategy: int, player_id: int) -> float:
+    """Get payoff for a given strategy combination."""
+    return float(PAYOFF_MATRIX[int(player1_strategy), int(player2_strategy), int(player_id)])
+
+def stag_indifference_threshold() -> float:
+    """
+    Calculate the normalized deviation loss (threshold) for cooperation.
+    
+    Returns the probability threshold at which the agent is indifferent
+    between cooperating (Stag) and defecting (Hare) based on the payoff matrix.
+    
+    Formula: p* = (a00 - a10) / [(a00 - a10) + (a11 - a01)]
+    where aij is the payoff for (agent_action=i, partner_action=j)
+    
+    Returns:
+        float: Threshold probability in [0, 1]
+    """
+    a00 = get_payoff(0, 0, 0)
+    a01 = get_payoff(0, 1, 0)
+    a10 = get_payoff(1, 0, 0)
+    a11 = get_payoff(1, 1, 0)
+    
+    den = (a00 - a10) + (a11 - a01)
+    return float((a00 - a10) / den) if den != 0 else 0.5
+
+# Decision threshold for cooperation (dynamically calculated)
+DECISION_THRESHOLD = stag_indifference_threshold()
 
 # ============================================================================
 # AGENT PARAMETERS
