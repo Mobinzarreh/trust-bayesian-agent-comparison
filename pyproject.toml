@@ -14,7 +14,8 @@ dependencies = [
     "numpy",
     "pandas",
     "matplotlib",
-    "joblib"
+    "joblib",
+    "seaborn (>=0.13.2,<0.14.0)"
 ]
 
 
