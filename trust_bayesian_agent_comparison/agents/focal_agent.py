@@ -14,6 +14,7 @@ from ..config import (
     STOCHASTIC,
     INVERSE_TEMPERATURE,
     EPS,
+    LAMBDA_SURPRISE,
     stag_indifference_threshold,
 )
 
@@ -36,7 +37,7 @@ class FocalAgent(BaseAgent):
         stochastic: bool = STOCHASTIC,
         inv_temp: float = INVERSE_TEMPERATURE,
         loss_aversion: float = LOSS_AVERSION,
-        lambda_surprise: float = 0.5,
+        lambda_surprise: float = LAMBDA_SURPRISE,
     ):
         """
         Initialize focal agent.

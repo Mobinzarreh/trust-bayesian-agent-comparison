@@ -46,10 +46,12 @@ def run_single_param_simulation(
     
     # Create agent and partner
     agent = FocalAgent(
+        eta=eta,
+        memory_discount=memory_discount,
+        trust_discount=trust_discount,
+        trust_smoothing=trust_smoothing,
         loss_aversion=loss_aversion,
-        mu=lambda_surprise,
-        eta_x=eta,
-        eta_t=eta,
+        lambda_surprise=lambda_surprise,
     )
     partner = partner_factory()
     

@@ -1,7 +1,20 @@
-"""Core simulation runner for agent-partner interactions."""
+"""Core simulation runner for agent-partner interactions.
+
+Reproducibility:
+- Seeds both NumPy and Python's `random` per simulation call to ensure
+    deterministic behavior when agents/partners use either RNG.
+
+Note:
+- Both agent and partner consume from the same global RNG streams. If the two
+    agents consume different numbers of random draws, their partner's draws could
+    differ across runs even with identical seeds. For strict isolation, consider
+    refactoring to pass dedicated RNG objects. For now, we reset the RNGs at the
+    start of each simulation to provide consistent conditions within a run.
+"""
 
 import pandas as pd
 import numpy as np
+import random
 from typing import Any
 from ..config import NUM_ROUNDS, DEFAULT_SEED, PAYOFF_MATRIX
 
@@ -36,7 +49,9 @@ def run_agent_simulation(
             - agent_payoff: Agent's payoff this round
             - partner_payoff: Partner's payoff this round
     """
+    # Seed both RNGs for reproducibility across NumPy and Python random users
     np.random.seed(seed)
+    random.seed(seed)
     
     records = []
     
@@ -95,19 +110,20 @@ def run_paired_simulation(
     seed: int = DEFAULT_SEED,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Run paired simulation with same partner instance for fair comparison.
-    
-    Creates one partner instance and has both agents interact with it
-    sequentially using the same random seed. This ensures both agents
-    face identical conditions.
-    
+    Run paired simulations with identical conditions per agent.
+
+    Creates two fresh partner instances via `partner_factory()` so that each
+    agent faces an identical but isolated opponent. Each simulation run
+    re-seeds RNGs to the same `seed` to provide comparable stochastic
+    conditions for both agents.
+
     Args:
         agent1: First agent instance
         agent2: Second agent instance
-        partner_factory: Callable that creates fresh partner instances
+        partner_factory: Callable that creates fresh partner instances (picklable)
         num_rounds: Number of rounds per simulation
         seed: Random seed for reproducibility
-        
+
     Returns:
         Tuple of (df1, df2) where:
             - df1: Results for agent1
