@@ -77,47 +77,50 @@ class GrimTriggerPartner(BasePartner):
 
 class PavlovPartner(BasePartner):
     """
-    Pavlov (win-stay, lose-shift) strategy.
+    Pavlov (Win-Stay, Lose-Shift) strategy.
     
-    Repeats action if payoff was good (4 or 3), switches if bad (0 or 2).
-    Requires tracking own actions and outcomes.
+    - Win (stay): both cooperated (1,1) or both defected (0,0) → repeat
+    - Lose (shift): mismatch (1,0) or (0,1) → switch
+    
+    Simpler than payoff-based: just looks at whether actions matched.
     """
     
     def __init__(self):
         """Initialize Pavlov partner."""
         super().__init__()
-        self.last_action = 1  # Start with cooperation
-        self.last_payoff = None
+        self.last_own_choice = 1  # Start with cooperation
+        self.last_agent_choice = None
+        self.current_choice = None
     
     def decide(self, round_num: int) -> int:
-        """Win-stay, lose-shift logic."""
+        """Win-stay, lose-shift based on action matching."""
         if round_num == 0:
-            return self.last_action
+            self.current_choice = 1  # Start with cooperation
+            return self.current_choice
         
-        # Switch if last payoff was bad (0 or 2)
-        if self.last_payoff in [0, 2]:
-            self.last_action = 1 - self.last_action
-        # Stay if payoff was good (3 or 4)
+        # Win-Stay: if last round matched (both same action), repeat
+        # Lose-Shift: if mismatch, switch
+        if self.last_agent_choice is not None and self.last_own_choice is not None:
+            if self.last_own_choice == self.last_agent_choice:
+                # Win: both chose same → stay
+                self.current_choice = self.last_own_choice
+            else:
+                # Lose: mismatch → shift
+                self.current_choice = 1 - self.last_own_choice
+        else:
+            self.current_choice = self.last_own_choice
         
-        return self.last_action
+        return self.current_choice
     
     def update(self, agent_action: int):
-        """Update state and calculate payoff."""
+        """Track what happened for next decision."""
         super().update(agent_action)
-        
-        # Calculate payoff (simplified for partner's perspective)
-        # [agent_action, partner_action] -> payoff for partner
-        if agent_action == 1 and self.last_action == 1:
-            self.last_payoff = 4  # Mutual cooperation
-        elif agent_action == 0 and self.last_action == 1:
-            self.last_payoff = 0  # Sucker
-        elif agent_action == 1 and self.last_action == 0:
-            self.last_payoff = 3  # Temptation
-        else:  # agent_action == 0 and self.last_action == 0
-            self.last_payoff = 2  # Mutual defection
+        self.last_agent_choice = agent_action
+        self.last_own_choice = self.current_choice
     
     def reset(self):
         """Reset Pavlov state."""
         super().reset()
-        self.last_action = 1
-        self.last_payoff = None
+        self.last_own_choice = 1
+        self.last_agent_choice = None
+        self.current_choice = None
