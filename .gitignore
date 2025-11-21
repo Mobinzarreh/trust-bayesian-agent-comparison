@@ -1,6 +1,8 @@
-# Keep only the main working file
+# Keep main notebooks
 *.ipynb
 !Trust_updated_focal_stoch_Betray.ipynb
+!00_quick_start_refactored.ipynb
+!02_sensitivity_analysis_refactored.ipynb
 
 # Keep documentation
 !README.md
