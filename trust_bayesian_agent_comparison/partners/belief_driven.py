@@ -183,6 +183,16 @@ class BeliefDrivenPartnerBase:
         
         # Record for next round
         self.obs_actions.append(self._last_observed_action)
+    
+    def update(self, agent_action: int):
+        """
+        Update method for compatibility with simulation runner.
+        Alias for observe() to match expected interface.
+        
+        Args:
+            agent_action: Agent's action (1=cooperate, 0=defect)
+        """
+        self.observe(agent_action)
 
 
 class AdaptivePartner(BeliefDrivenPartnerBase):

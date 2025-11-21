@@ -44,6 +44,12 @@ def run_agent_simulation(
         # 1. Record agent's current belief (before decision)
         belief = agent.get_belief()
         
+        # Get additional state variables if available
+        trust_level = getattr(agent, 't', None)
+        signal = getattr(agent, 'x', None)
+        alpha = getattr(agent, 'alpha', None)
+        beta = getattr(agent, 'beta', None)
+        
         # 2. Both decide simultaneously
         agent_action = agent.decide()
         partner_action = partner.decide(r)
@@ -52,15 +58,27 @@ def run_agent_simulation(
         agent_payoff = PAYOFF_MATRIX[agent_action, partner_action, 0]
         partner_payoff = PAYOFF_MATRIX[agent_action, partner_action, 1]
         
-        # 4. Record round data
-        records.append({
+        # 4. Record round data with all available state
+        record = {
             'round': r,
             'agent_belief': belief,
             'agent_action': agent_action,
             'partner_action': partner_action,
             'agent_payoff': agent_payoff,
             'partner_payoff': partner_payoff,
-        })
+        }
+        
+        # Add optional state variables
+        if trust_level is not None:
+            record['trust_level'] = trust_level
+        if signal is not None:
+            record['signal'] = signal
+        if alpha is not None:
+            record['alpha'] = alpha
+        if beta is not None:
+            record['beta'] = beta
+            
+        records.append(record)
         
         # 5. Update both players
         agent.update(partner_action)

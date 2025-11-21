@@ -11,7 +11,6 @@ from ..config import (
     NUM_ROUNDS,
     RESULTS_DIR,
     N_JOBS,
-    get_dated_subdir,
 )
 from ..simulation import run_paired_simulation
 
@@ -32,10 +31,10 @@ class MonteCarloManager:
         Initialize Monte Carlo manager.
         
         Args:
-            results_dir: Base directory for results (default: PROJECT_ROOT/results/monte_carlo)
+            results_dir: Base directory for results (default: PROJECT_ROOT/results)
         """
         if results_dir is None:
-            results_dir = RESULTS_DIR / "monte_carlo"
+            results_dir = RESULTS_DIR
         
         self.results_dir = results_dir
         self.results_dir.mkdir(parents=True, exist_ok=True)
@@ -70,12 +69,11 @@ class MonteCarloManager:
             Tuple of (agent1_results, agent2_results) DataFrames
         """
         # Check for existing results
-        dated_dir = get_dated_subdir(self.results_dir)
-        file1 = dated_dir / f"{partner_name}_agent1.csv"
-        file2 = dated_dir / f"{partner_name}_agent2.csv"
+        file1 = self.results_dir / f"{partner_name}_agent1.csv"
+        file2 = self.results_dir / f"{partner_name}_agent2.csv"
         
         if not overwrite and file1.exists() and file2.exists():
-            print(f"Loading existing results from {dated_dir.name}/")
+            print(f"Loading existing results for {partner_name}...")
             df1 = pd.read_csv(file1)
             df2 = pd.read_csv(file2)
             return df1, df2
@@ -113,7 +111,7 @@ class MonteCarloManager:
         combined_df1.to_csv(file1, index=False)
         combined_df2.to_csv(file2, index=False)
         
-        print(f"Results saved to {dated_dir.name}/")
+        print(f"Results saved for {partner_name}")
         
         return combined_df1, combined_df2
     

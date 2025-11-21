@@ -12,7 +12,7 @@ import logging
 from ..config import (
     SENSITIVITY_SEEDS, ETA_GRID, MEMORY_DISCOUNT_GRID, TRUST_DISCOUNT_GRID,
     TRUST_SMOOTHING_GRID, LOSS_AVERSION_GRID, LAMBDA_SURPRISE_GRID,
-    NUM_ROUNDS, N_JOBS, VERBOSE, get_dated_subdir, RESULTS_DIR
+    NUM_ROUNDS, N_JOBS, VERBOSE, RESULTS_DIR
 )
 
 # Setup logging
@@ -153,8 +153,7 @@ class SensitivityAnalysisManager:
             DataFrame with sensitivity results
         """
         # Generate filename
-        dated_dir = get_dated_subdir(self.results_dir)
-        filename = dated_dir / f"{partner_name.replace(' ', '_')}.csv"
+        filename = self.results_dir / f"{partner_name.replace(' ', '_')}.csv"
         
         # Check if we should load existing results
         if filename.exists() and not overwrite:

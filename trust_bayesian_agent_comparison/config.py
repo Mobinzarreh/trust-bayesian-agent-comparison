@@ -23,13 +23,6 @@ def get_timestamped_path(base_dir: Path, prefix: str = "", suffix: str = ".csv")
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     return base_dir / f"{prefix}{timestamp}{suffix}"
 
-def get_dated_subdir(base_dir: Path) -> Path:
-    """Create and return dated subdirectory for organizing results."""
-    date_str = datetime.now().strftime("%Y-%m-%d")
-    subdir = base_dir / date_str
-    subdir.mkdir(parents=True, exist_ok=True)
-    return subdir
-
 # ============================================================================
 # GAME PARAMETERS
 # ============================================================================
