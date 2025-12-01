@@ -301,7 +301,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Mobin Zarreh**
 - GitHub: [@Mobinzarreh](https://github.com/Mobinzarreh)
-- Email: [your.email@example.com]
+- Email: [mobin.zarreh@asu.edu]
 
 ---
 
