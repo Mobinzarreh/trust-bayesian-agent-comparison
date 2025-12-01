@@ -95,7 +95,7 @@ BETA_0 = EPS               # Prior defection count
 # ============================================================================
 # SIMULATION PARAMETERS
 # ============================================================================
-NUM_ROUNDS = 70            # Default rounds per simulation
+NUM_ROUNDS = 100            # Default rounds per simulation
 DEFAULT_SEED = 42          # Reproducibility seed
 
 # ============================================================================
@@ -104,16 +104,17 @@ DEFAULT_SEED = 42          # Reproducibility seed
 SENSITIVITY_SEEDS = (42, 43, 44)  # Multiple seeds for robustness
 
 # Parameter grids
-ETA_GRID = np.linspace(0.0, 1.0, 6)
+ETA_GRID = np.linspace(0.0, 1.0, 4)
 MEMORY_DISCOUNT_GRID = np.linspace(0.0, 1.0, 4)
 TRUST_DISCOUNT_GRID = np.linspace(0.0, 1.0, 4)
 TRUST_SMOOTHING_GRID = np.linspace(0.0, 1.0, 4)
 LOSS_AVERSION_GRID = np.linspace(1.0, 5.0, 5)
 LAMBDA_SURPRISE_GRID = np.linspace(0.0, 1.0, 4)
+INVERSE_TEMPERATURE_GRID = np.array([0.5, 2.0, 5.0, 10.0])  # Exploration-exploitation trade-off
 
 # Parallel processing
 N_JOBS = -1                # Use all available cores
-VERBOSE = 10               # Progress reporting level
+VERBOSE = 5               # Progress reporting level
 
 # ============================================================================
 # MONTE CARLO PARAMETERS

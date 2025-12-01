@@ -28,7 +28,7 @@ class FocalAgent(BaseAgent):
     def __init__(
         self,
         u_i: float = None,
-        t_init: float = 0.1,
+        t_init: float = 0.0,
         eta: float = ETA,
         noise_sigma: float = NOISE_SIGMA,
         memory_discount: float = MEMORY_DISCOUNT,

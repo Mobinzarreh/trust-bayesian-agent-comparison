@@ -25,7 +25,7 @@ class BeliefDrivenPartnerBase:
     def __init__(
         self,
         u_i: float = None,
-        t0: float = 0.1,
+        t0: float = 0.0,
         eta: float = ETA,
         noise_sigma: float = NOISE_SIGMA,
         memory_discount: float = MEMORY_DISCOUNT,

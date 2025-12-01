@@ -27,6 +27,7 @@ def run_single_param_simulation(
     trust_smoothing: float,
     loss_aversion: float,
     lambda_surprise: float,
+    inverse_temperature: float,
     seed: int,
     partner_factory: Callable,
     num_rounds: int,
@@ -41,7 +42,7 @@ def run_single_param_simulation(
     from ..simulation.runner import run_agent_simulation
     from ..agents import FocalAgent
     from ..analysis.metrics import (
-        agent_coop_rate, time_to_threshold, final_decision
+        mutual_coop_rate, betrayal_rate, calculate_payoffs, total_payoff
     )
     
     # Create agent and partner
@@ -52,6 +53,7 @@ def run_single_param_simulation(
         trust_smoothing=trust_smoothing,
         loss_aversion=loss_aversion,
         lambda_surprise=lambda_surprise,
+        inv_temp=inverse_temperature,
     )
     partner = partner_factory()
     
@@ -63,6 +65,9 @@ def run_single_param_simulation(
         seed=seed,
     )
     
+    # Calculate payoffs
+    df_with_payoffs = calculate_payoffs(df)
+    
     return {
         "eta": eta,
         "memory_discount": memory_discount,
@@ -70,11 +75,11 @@ def run_single_param_simulation(
         "trust_smoothing": trust_smoothing,
         "loss_aversion": loss_aversion,
         "lambda_surprise": lambda_surprise,
+        "inverse_temperature": inverse_temperature,
         "seed": seed,
-        "agent_coop_rate": agent_coop_rate(df),
-        "E_p_last": float(df["E_p"].iloc[-1]),
-        "final_decision": final_decision(df),
-        "time_to_threshold": time_to_threshold(df, direction=threshold_direction)
+        "mutual_coop_rate": mutual_coop_rate(df),
+        "betrayal_rate": betrayal_rate(df),
+        "total_payoff": total_payoff(df_with_payoffs),
     }
 
 
@@ -86,6 +91,7 @@ def sweep_learning_params(
     trust_smoothing_grid: np.ndarray = TRUST_SMOOTHING_GRID,
     loss_aversion_grid: np.ndarray = LOSS_AVERSION_GRID,
     lambda_surprise_grid: np.ndarray = LAMBDA_SURPRISE_GRID,
+    inverse_temperature_grid: Optional[np.ndarray] = None,
     seeds: Tuple[int, ...] = SENSITIVITY_SEEDS,
     num_rounds: int = NUM_ROUNDS,
     threshold_direction: Optional[str] = None,
@@ -98,6 +104,7 @@ def sweep_learning_params(
     Args:
         partner_factory: Callable that returns a partner instance
         *_grid: Parameter grids to sweep over
+        inverse_temperature_grid: If None, uses default INVERSE_TEMPERATURE from config
         seeds: Tuple of random seeds for robustness
         num_rounds: Rounds per simulation
         threshold_direction: 'up', 'down', or None for threshold crossing
@@ -107,18 +114,23 @@ def sweep_learning_params(
     Returns:
         DataFrame with results for all parameter combinations
     """
+    # Use default inverse_temperature if not provided
+    from ..config import INVERSE_TEMPERATURE
+    if inverse_temperature_grid is None:
+        inverse_temperature_grid = np.array([INVERSE_TEMPERATURE])
+    
     param_combinations = list(product(
         eta_grid, memory_discount_grid, trust_discount_grid, trust_smoothing_grid,
-        loss_aversion_grid, lambda_surprise_grid, seeds
+        loss_aversion_grid, lambda_surprise_grid, inverse_temperature_grid, seeds
     ))
     
     logger.info("Starting parameter sweep: %d combinations", len(param_combinations))
     
     results = Parallel(n_jobs=n_jobs, verbose=verbose)(
         delayed(run_single_param_simulation)(
-            eta, md, td, ts, la, ls, seed,
+            eta, md, td, ts, la, ls, it, seed,
             partner_factory, num_rounds, threshold_direction
-        ) for eta, md, td, ts, la, ls, seed in param_combinations
+        ) for eta, md, td, ts, la, ls, it, seed in param_combinations
     )
     
     logger.info("Parameter sweep complete")
@@ -155,7 +167,7 @@ class SensitivityAnalysisManager:
             DataFrame with sensitivity results
         """
         # Generate filename
-        filename = self.results_dir / f"{partner_name.replace(' ', '_')}.csv"
+        filename = self.results_dir / f"{partner_name.replace(' ', '_')}_results.csv"
         
         # Check if we should load existing results
         if filename.exists() and not overwrite:

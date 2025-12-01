@@ -1,0 +1,12 @@
+{
+    "python.defaultInterpreterPath": "./.venv/bin/python",
+    "python.terminal.activateEnvironment": true,
+    "datawrangler.kernelSpec": "trust-env",
+    "datawrangler.pythonPath": "./.venv/bin/python",
+    "datawrangler.useJupyterServer": false,
+    "datawrangler.useKernelSpec": true,
+    "jupyter.notebookFileRoot": "${workspaceFolder}",
+    "jupyter.runStartupCommands": [
+        "import sys; sys.path.insert(0, '${workspaceFolder}')"
+    ]
+}
