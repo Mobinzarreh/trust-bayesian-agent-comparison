@@ -9,23 +9,19 @@ from .fixed import (
     RandomPartner,
     PeriodicCheaterPartner,
     SingleCyclePartner,
-    ProbabilisticPartner,
     GradualDeteriorationPartner,
 )
 
 # Reactive strategies  
 from .reactive import (
     TitForTatCooperatePartner,
-    TitForTatDefectPartner,
     GrimTriggerPartner,
-    PavlovPartner,
     SuspiciousTitForTatPartner,
 )
 
 # Belief-driven strategies (mirror focal agent dynamics)
 from .belief_driven import (
     BeliefDrivenPartnerBase,
-    AdaptivePartner,
     StrategicCheaterPartner,
     ExpectationViolationPartner,
 )
@@ -38,17 +34,13 @@ __all__ = [
     'RandomPartner',
     'PeriodicCheaterPartner',
     'SingleCyclePartner',
-    'ProbabilisticPartner',
     'GradualDeteriorationPartner',
     # Reactive
     'TitForTatCooperatePartner',
-    'TitForTatDefectPartner',
     'GrimTriggerPartner',
-    'PavlovPartner',
     'SuspiciousTitForTatPartner',
     # Belief-driven
     'BeliefDrivenPartnerBase',
-    'AdaptivePartner',
     'StrategicCheaterPartner',
     'ExpectationViolationPartner',
 ]

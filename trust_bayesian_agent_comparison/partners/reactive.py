@@ -101,13 +101,18 @@ class GrimTriggerPartner:
 
 class PavlovPartner:
     """
-    Win-Stay, Lose-Shift (Pavlov):
-    - If last round was mutually beneficial (CC or DD), repeat
-    - If last round was not mutually beneficial (CD or DC), switch
+    Win-Stay, Lose-Shift (Pavlov) - Payoff-based implementation.
     
-    For stag hunt:
-    - Win (stay): both cooperated (1,1) or both defected (0,0) 
-    - Lose (shift): mismatch (1,0) or (0,1)
+    Uses myopic best response logic based on actual payoffs received:
+    - If opponent cooperated last → Cooperate (payoff 4 > 3)
+    - If opponent defected last → Defect (payoff 2 > 0)
+    
+    This is equivalent to myopic best response in Stag Hunt:
+    Choose the action that maximizes payoff assuming opponent repeats.
+    
+    For Stag Hunt payoffs [[2,3],[0,4]]:
+    - vs Cooperate: Coop gets 4, Defect gets 3 → Cooperate
+    - vs Defect: Coop gets 0, Defect gets 2 → Defect
     """
     
     def __init__(self):
@@ -115,23 +120,29 @@ class PavlovPartner:
         self.last_own_choice = 1  # Start with cooperation
         self.last_agent_choice = None
         self.current_choice = None
+        # Stag Hunt payoffs: PAYOFFS[my_action][opponent_action]
+        # 0 = Defect, 1 = Cooperate
+        self.payoffs = [[2, 3], [0, 4]]  # [[DD, DC], [CD, CC]]
     
     def decide(self, round_num: int, last_agent_choice: int = None) -> int:
-        """Win-stay, lose-shift based on action matching."""
-        if round_num == 0:
+        """
+        Myopic best response: choose action that maximizes payoff
+        assuming opponent repeats their last action.
+        """
+        if round_num == 0 or last_agent_choice is None:
             self.current_choice = 1  # Start with cooperation
             return self.current_choice
         
-        # Win-Stay: if last round matched (both same action), repeat
-        # Lose-Shift: if mismatch, switch
-        if last_agent_choice is not None and self.last_own_choice is not None:
-            if self.last_own_choice == last_agent_choice:
-                # Win: both chose same → stay
-                self.current_choice = self.last_own_choice
-            else:
-                # Lose: mismatch → shift
-                self.current_choice = 1 - self.last_own_choice
+        # Myopic best response: maximize payoff given opponent's last action
+        payoff_if_coop = self.payoffs[1][last_agent_choice]  # If I cooperate
+        payoff_if_def = self.payoffs[0][last_agent_choice]   # If I defect
+        
+        if payoff_if_coop > payoff_if_def:
+            self.current_choice = 1  # Cooperate
+        elif payoff_if_def > payoff_if_coop:
+            self.current_choice = 0  # Defect
         else:
+            # Tie: stay with last choice
             self.current_choice = self.last_own_choice
         
         return self.current_choice

@@ -22,13 +22,11 @@ from trust_bayesian_agent_comparison.partners import (
     AlwaysDefectPartner,
     RandomPartner,
     TitForTatCooperatePartner,
-    TitForTatDefectPartner,
+    SuspiciousTitForTatPartner,
     GrimTriggerPartner,
-    PavlovPartner,
     PeriodicCheaterPartner,
     SingleCyclePartner,
     GradualDeteriorationPartner,
-    AdaptivePartner,
     StrategicCheaterPartner,
     ExpectationViolationPartner,
 )
@@ -54,12 +52,10 @@ PARTNERS = {
     
     # Reactive strategies
     'TitForTat': lambda: TitForTatCooperatePartner(),
-    'SuspiciousTFT': lambda: TitForTatDefectPartner(),
+    'SuspiciousTFT': lambda: SuspiciousTitForTatPartner(),
     'GrimTrigger': lambda: GrimTriggerPartner(),
-    'Pavlov': lambda: PavlovPartner(),
     
     # Belief-driven strategies
-    'Adaptive': lambda: AdaptivePartner(),
     'StrategicCheater': lambda: StrategicCheaterPartner(t_threshold=5.0),
     'ExpectationViolation': lambda: ExpectationViolationPartner(),
 }
