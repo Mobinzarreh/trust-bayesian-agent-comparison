@@ -41,6 +41,13 @@ This study implements and compares two types of learning agents in repeated stag
 - **Bayesian agent performs better** against stationary partners (TitForTat, GrimTrigger)
 - **Trust-based agent shows advantage** with increased interaction rounds
 
+### Key Performance Metrics
+| Metric | Definition | Interpretation |
+|--------|------------|----------------|
+| **Mutual Cooperation Rate** | Proportion of rounds where both agent and partner cooperate | Higher is better (successful collaboration) |
+| **Betrayal Rate** | Proportion of rounds where agent cooperates but partner defects | Lower is better (agent's vulnerability to exploitation) |
+| **Total Payoff** | Cumulative reward over all rounds | Higher is better (overall performance) |
+
 ### Parameter Sensitivity Results
 Complete sensitivity analysis of 7 parameters across 5 partner types:
 - **eta** (learning rate): [0.1, 0.3, 0.5, 0.7, 0.9]
