@@ -1,21 +1,21 @@
 """Core simulation runner for agent-partner interactions.
 
 Reproducibility:
-- Seeds both NumPy and Python's `random` per simulation call to ensure
-    deterministic behavior when agents/partners use either RNG.
+- Each simulation receives an isolated RNG (numpy.random.Generator) to ensure
+  deterministic and independent behavior across parallel runs.
+- The RNG is passed to agents/partners that support it, or used to seed global
+  RNGs for backward compatibility.
 
-Note:
-- Both agent and partner consume from the same global RNG streams. If the two
-    agents consume different numbers of random draws, their partner's draws could
-    differ across runs even with identical seeds. For strict isolation, consider
-    refactoring to pass dedicated RNG objects. For now, we reset the RNGs at the
-    start of each simulation to provide consistent conditions within a run.
+RNG Isolation:
+- Each simulation creates its own numpy.random.Generator from the seed.
+- This ensures that Agent1 and Agent2 simulations are completely independent,
+  even if they consume different numbers of random draws.
 """
 
 import pandas as pd
 import numpy as np
 import random
-from typing import Any
+from typing import Any, Optional
 from ..config import NUM_ROUNDS, DEFAULT_SEED, PAYOFF_MATRIX
 
 
@@ -24,6 +24,8 @@ def run_agent_simulation(
     partner: Any,
     num_rounds: int = NUM_ROUNDS,
     seed: int = DEFAULT_SEED,
+    rng: Optional[np.random.Generator] = None,
+    notebook_compatible_seeding: bool = False,
 ) -> pd.DataFrame:
     """
     Run simulation between agent and partner.
@@ -38,7 +40,11 @@ def run_agent_simulation(
         agent: Agent instance with decide() and update() methods
         partner: Partner instance with decide() and update() methods
         num_rounds: Number of interaction rounds
-        seed: Random seed for reproducibility
+        seed: Random seed for reproducibility (used if rng not provided)
+        rng: Optional numpy random Generator for isolated randomness
+        notebook_compatible_seeding: If True, use direct seeding like notebook
+            (np.random.seed(seed)) for validation. If False, use isolated RNG
+            for proper Monte Carlo independence.
         
     Returns:
         DataFrame with columns:
@@ -49,11 +55,30 @@ def run_agent_simulation(
             - agent_payoff: Agent's payoff this round
             - partner_payoff: Partner's payoff this round
     """
-    # Seed both RNGs for reproducibility across NumPy and Python random users
-    np.random.seed(seed)
-    random.seed(seed)
+    if notebook_compatible_seeding:
+        # Notebook-style: direct seeding for exact reproducibility with notebook
+        np.random.seed(seed)
+        random.seed(seed)
+        rng = None  # Don't use isolated RNG
+    else:
+        # Production-style: isolated RNG for Monte Carlo independence
+        # Create isolated RNG if not provided
+        if rng is None:
+            rng = np.random.default_rng(seed)
+        
+        # Seed global RNGs for backward compatibility with code using np.random or random
+        # Use rng to generate seeds to maintain isolation
+        np.random.seed(int(rng.integers(0, 2**31)))
+        random.seed(int(rng.integers(0, 2**31)))
+    
+    # Pass RNG to agent/partner if they support it
+    if hasattr(agent, 'set_rng'):
+        agent.set_rng(rng)
+    if hasattr(partner, 'set_rng'):
+        partner.set_rng(rng)
     
     records = []
+    last_agent_action = None  # Track for reactive partners
     
     for r in range(num_rounds):
         # 1. Record agent's current belief (before decision)
@@ -66,8 +91,11 @@ def run_agent_simulation(
         beta = getattr(agent, 'beta', None)
         
         # 2. Both decide simultaneously
+        # Agent decides based on its belief
         agent_action = agent.decide()
-        partner_action = partner.decide(r)
+        
+        # Partner decides - pass last_agent_action for reactive partners
+        partner_action = partner.decide(r, last_agent_action)
         
         # 3. Calculate payoffs
         agent_payoff = PAYOFF_MATRIX[agent_action, partner_action, 0]
@@ -98,6 +126,9 @@ def run_agent_simulation(
         # 5. Update both players
         agent.update(partner_action)
         partner.update(agent_action)
+        
+        # 6. Track last agent action for next round (reactive partners)
+        last_agent_action = agent_action
     
     return pd.DataFrame(records)
 
@@ -108,14 +139,16 @@ def run_paired_simulation(
     partner_factory: Any,
     num_rounds: int = NUM_ROUNDS,
     seed: int = DEFAULT_SEED,
+    notebook_compatible_seeding: bool = False,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
     Run paired simulations with identical conditions per agent.
 
     Creates two fresh partner instances via `partner_factory()` so that each
-    agent faces an identical but isolated opponent. Each simulation run
-    re-seeds RNGs to the same `seed` to provide comparable stochastic
-    conditions for both agents.
+    agent faces an identical but isolated opponent. Each agent gets its own
+    independent RNG stream derived from the same seed, ensuring:
+    1. Both agents face statistically identical conditions
+    2. Different random draw counts don't affect the other agent's simulation
 
     Args:
         agent1: First agent instance
@@ -123,18 +156,44 @@ def run_paired_simulation(
         partner_factory: Callable that creates fresh partner instances (picklable)
         num_rounds: Number of rounds per simulation
         seed: Random seed for reproducibility
+        notebook_compatible_seeding: If True, use direct seeding like notebook.
+            Note: In notebook mode, agent2 will NOT have identical RNG conditions
+            as agent1, which matches notebook behavior but sacrifices isolation.
 
     Returns:
         Tuple of (df1, df2) where:
             - df1: Results for agent1
             - df2: Results for agent2
     """
-    # Run agent1 vs partner
-    partner1 = partner_factory()
-    df1 = run_agent_simulation(agent1, partner1, num_rounds, seed)
-    
-    # Run agent2 vs identical partner (same seed)
-    partner2 = partner_factory()
-    df2 = run_agent_simulation(agent2, partner2, num_rounds, seed)
+    if notebook_compatible_seeding:
+        # Notebook-style: sequential simulation with shared RNG state
+        # This matches notebook behavior but agent2 sees different RNG state than agent1
+        partner1 = partner_factory()
+        df1 = run_agent_simulation(
+            agent1, partner1, num_rounds, seed, 
+            notebook_compatible_seeding=True
+        )
+        
+        # Agent2 runs with same seed but RNG state has advanced from agent1's simulation
+        # To match notebook behavior where each simulation re-seeds:
+        partner2 = partner_factory()
+        df2 = run_agent_simulation(
+            agent2, partner2, num_rounds, seed,
+            notebook_compatible_seeding=True
+        )
+    else:
+        # Production-style: isolated RNG for each agent
+        # Create independent RNGs for each agent's simulation
+        # Using different but deterministic sub-seeds ensures isolation
+        rng1 = np.random.default_rng(seed)
+        rng2 = np.random.default_rng(seed + 1_000_000)  # Offset to ensure independence
+        
+        # Run agent1 vs partner with isolated RNG
+        partner1 = partner_factory()
+        df1 = run_agent_simulation(agent1, partner1, num_rounds, seed, rng=rng1)
+        
+        # Run agent2 vs identical partner with its own isolated RNG
+        partner2 = partner_factory()
+        df2 = run_agent_simulation(agent2, partner2, num_rounds, seed, rng=rng2)
     
     return df1, df2

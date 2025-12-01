@@ -53,6 +53,7 @@ class MonteCarloManager:
         num_rounds: int = NUM_ROUNDS,
         n_jobs: int = N_JOBS,
         overwrite: bool = False,
+        notebook_compatible_seeding: bool = False,
     ) -> tuple[pd.DataFrame, pd.DataFrame]:
         """Run Monte Carlo simulation comparing two agents.
 
@@ -66,6 +67,8 @@ class MonteCarloManager:
             num_rounds: Rounds per simulation
             n_jobs: Number of parallel jobs (-1 = all cores)
             overwrite: If False and results exist, load them instead
+            notebook_compatible_seeding: If True, use direct seeding like notebook
+                for validation. If False, use isolated RNG for Monte Carlo.
 
         Returns:
             Tuple of (agent1_results, agent2_results) DataFrames
@@ -92,6 +95,7 @@ class MonteCarloManager:
                 base_seed + i,
                 num_rounds,
                 run_id=i,
+                notebook_compatible_seeding=notebook_compatible_seeding,
             )
             for i in range(num_runs)
         )
@@ -132,6 +136,7 @@ class MonteCarloManager:
         seed: int,
         num_rounds: int,
         run_id: int,
+        notebook_compatible_seeding: bool = False,
     ) -> tuple[int, pd.DataFrame, pd.DataFrame]:
         """Execute single Monte Carlo run with paired agents.
 
@@ -142,7 +147,8 @@ class MonteCarloManager:
         agent2 = agent2_factory()
 
         df1, df2 = run_paired_simulation(
-            agent1, agent2, partner_factory, num_rounds, seed
+            agent1, agent2, partner_factory, num_rounds, seed,
+            notebook_compatible_seeding=notebook_compatible_seeding,
         )
 
         return run_id, df1, df2

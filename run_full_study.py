@@ -49,7 +49,7 @@ PARTNERS = {
     'AlwaysDefect': lambda: AlwaysDefectPartner(),
     'Random': lambda: RandomPartner(p=0.5),
     'PeriodicCheater': lambda: PeriodicCheaterPartner(cycle_length=6, cheat_duration=2),
-    'SingleCycle': lambda: SingleCyclePartner(cooperate_rounds=30),
+    'SingleCycle': lambda: SingleCyclePartner(num_rounds=100, cooperate_fraction=0.3),
     'GradualDeterioration': lambda: GradualDeteriorationPartner(deterioration_rate=0.8),
     
     # Reactive strategies
@@ -65,11 +65,22 @@ PARTNERS = {
 }
 
 
-def run_monte_carlo_simulations(overwrite=False):
-    """Run Monte Carlo simulations for all partners."""
+def run_monte_carlo_simulations(overwrite=False, notebook_compatible_seeding=False):
+    """Run Monte Carlo simulations for all partners.
+    
+    Args:
+        overwrite: If True, regenerate results even if they exist
+        notebook_compatible_seeding: If True, use notebook-style direct seeding
+            for validation against notebook results. If False, use isolated RNG
+            for proper Monte Carlo independence (recommended for production).
+    """
     print("="*80)
     print("RUNNING MONTE CARLO SIMULATIONS")
     print("="*80)
+    if notebook_compatible_seeding:
+        print("Using NOTEBOOK-COMPATIBLE seeding (for validation)")
+    else:
+        print("Using ISOLATED RNG seeding (production mode)")
     
     mc_manager = MonteCarloManager()
     
@@ -91,6 +102,7 @@ def run_monte_carlo_simulations(overwrite=False):
             partner_name=partner_name,
             num_runs=NUM_MONTE_CARLO_RUNS,
             overwrite=overwrite,
+            notebook_compatible_seeding=notebook_compatible_seeding,
         )
         
         all_results[partner_name] = {
@@ -299,8 +311,12 @@ def create_visualizations(all_results, summary_df):
     print(f"\nAll visualizations saved to: {FIGURES_DIR}/")
 
 
-def main():
-    """Run complete study."""
+def main(notebook_compatible_seeding=True):
+    """Run complete study.
+    
+    Args:
+        notebook_compatible_seeding: If True, use notebook-style seeding for validation
+    """
     print("\n" + "="*80)
     print("TRUST-BASED VS BAYESIAN AGENT COMPARISON STUDY")
     print("="*80)
@@ -310,9 +326,13 @@ def main():
     print(f"  - Partner Types: {len(PARTNERS)}")
     print(f"  - Results Directory: {RESULTS_DIR}")
     print(f"  - Figures Directory: {FIGURES_DIR}")
+    print(f"  - Seeding Mode: {'Notebook-Compatible' if notebook_compatible_seeding else 'Isolated RNG (Production)'}")
     
     # Run simulations
-    all_results = run_monte_carlo_simulations(overwrite=True)
+    all_results = run_monte_carlo_simulations(
+        overwrite=True, 
+        notebook_compatible_seeding=notebook_compatible_seeding
+    )
     
     # Compute statistics (original summary)
     summary_df = compute_summary_statistics(all_results)
@@ -349,4 +369,16 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    import argparse
+    
+    parser = argparse.ArgumentParser(
+        description="Run Trust vs Bayesian agent comparison study"
+    )
+    parser.add_argument(
+        "--notebook-seeding",
+        action="store_true",
+        help="Use notebook-compatible seeding for validation (default: use isolated RNG)"
+    )
+    
+    args = parser.parse_args()
+    main(notebook_compatible_seeding=args.notebook_seeding)

@@ -67,18 +67,18 @@ DECISION_THRESHOLD = stag_indifference_threshold()
 # The agent maintains two state variables:
 #   - x (signal): Expected cooperation rate, updated via EWMA
 #   - t (trust): Confidence/precision in the signal, updated via consistency measure
-ETA = 0.1                  # Learning rate for signal (x) update via EWMA: x_new = x + η*(obs - x)
+ETA = 0.3                  # Learning rate for signal (x) update via EWMA: x_new = x + η*(obs - x)
 LEARNING_RATE_T = 0.2      # Learning rate for trust (t) update: t_new = (1-α)*t + α*target
                            # Note: This is implemented as 'trust_smoothing' parameter in FocalAgent
 NOISE_SIGMA = 0.02         # Gaussian noise for exploration
 
 # Trust-based agent defaults
 MEMORY_DISCOUNT = 0.9      # Recency weighting for signal update (γ_x)
-TRUST_DISCOUNT = 0.6       # Recency weighting for trust update (γ_t)
+TRUST_DISCOUNT = 0.80       # Recency weighting for trust update (γ_t)
 TRUST_SMOOTHING = LEARNING_RATE_T  # Alias: smoothing factor = learning rate for trust
 TRUST_MIN = 0.0            # Minimum trust level
-TRUST_MAX = 12.0           # Maximum trust level
-EPS = 0.5                  # Small constant for Beta distribution
+TRUST_MAX = 10.0           # Maximum trust level
+EPS = 1                  # Small constant for Beta distribution
 
 # Asymmetric loss parameters
 LOSS_AVERSION = 2.0        # Betrayal penalty multiplier (λ)
@@ -95,8 +95,8 @@ BETA_0 = EPS               # Prior defection count
 # ============================================================================
 # SIMULATION PARAMETERS
 # ============================================================================
-NUM_ROUNDS = 100            # Default rounds per simulation
-DEFAULT_SEED = 100          # Reproducibility seed
+NUM_ROUNDS = 70            # Default rounds per simulation
+DEFAULT_SEED = 42          # Reproducibility seed
 
 # ============================================================================
 # SENSITIVITY ANALYSIS PARAMETERS
@@ -118,7 +118,7 @@ VERBOSE = 10               # Progress reporting level
 # ============================================================================
 # MONTE CARLO PARAMETERS
 # ============================================================================
-NUM_MONTE_CARLO_RUNS = 1000  # Simulations per partner
+NUM_MONTE_CARLO_RUNS = 300  # Simulations per partner
 MC_BASE_SEED = 42           # Base seed for MC runs
 
 # ============================================================================
