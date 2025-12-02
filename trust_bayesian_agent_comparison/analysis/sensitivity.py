@@ -12,7 +12,7 @@ import logging
 from ..config import (
     SENSITIVITY_SEEDS, ETA_GRID, MEMORY_DISCOUNT_GRID, TRUST_DISCOUNT_GRID,
     TRUST_SMOOTHING_GRID, LOSS_AVERSION_GRID, LAMBDA_SURPRISE_GRID,
-    INITIAL_X_GRID,
+    INITIAL_X_GRID, T_INIT_GRID,
     NUM_ROUNDS, N_JOBS, VERBOSE, RESULTS_DIR
 )
 
@@ -30,6 +30,7 @@ def run_single_param_simulation(
     lambda_surprise: float,
     inverse_temperature: float,
     initial_x: float,
+    t_init: float,
     seed: int,
     partner_factory: Callable,
     num_rounds: int,
@@ -50,6 +51,7 @@ def run_single_param_simulation(
     # Create agent and partner
     agent = FocalAgent(
         u_i=initial_x,
+        t_init=t_init,
         eta=eta,
         memory_discount=memory_discount,
         trust_discount=trust_discount,
@@ -80,6 +82,7 @@ def run_single_param_simulation(
         "lambda_surprise": lambda_surprise,
         "inverse_temperature": inverse_temperature,
         "initial_x": initial_x,
+        "t_init": t_init,
         "seed": seed,
         "mutual_coop_rate": mutual_coop_rate(df),
         "betrayal_rate": betrayal_rate(df),
@@ -97,6 +100,7 @@ def sweep_learning_params(
     lambda_surprise_grid: np.ndarray = LAMBDA_SURPRISE_GRID,
     inverse_temperature_grid: Optional[np.ndarray] = None,
     initial_x_grid: Optional[np.ndarray] = None,
+    t_init_grid: Optional[np.ndarray] = None,
     seeds: Tuple[int, ...] = SENSITIVITY_SEEDS,
     num_rounds: int = NUM_ROUNDS,
     threshold_direction: Optional[str] = None,
@@ -125,19 +129,22 @@ def sweep_learning_params(
         inverse_temperature_grid = np.array([INVERSE_TEMPERATURE])
     if initial_x_grid is None:
         initial_x_grid = np.array([1 - stag_indifference_threshold()])
+    if t_init_grid is None:
+        t_init_grid = np.array([0.0])  # Default initial trust
     
     param_combinations = list(product(
         eta_grid, memory_discount_grid, trust_discount_grid, trust_smoothing_grid,
-        loss_aversion_grid, lambda_surprise_grid, inverse_temperature_grid, initial_x_grid, seeds
+        loss_aversion_grid, lambda_surprise_grid, inverse_temperature_grid, initial_x_grid,
+        t_init_grid, seeds
     ))
     
     logger.info("Starting parameter sweep: %d combinations", len(param_combinations))
     
     results = Parallel(n_jobs=n_jobs, verbose=verbose)(
         delayed(run_single_param_simulation)(
-            eta, md, td, ts, la, ls, it, ix, seed,
+            eta, md, td, ts, la, ls, it, ix, ti, seed,
             partner_factory, num_rounds, threshold_direction
-        ) for eta, md, td, ts, la, ls, it, ix, seed in param_combinations
+        ) for eta, md, td, ts, la, ls, it, ix, ti, seed in param_combinations
     )
     
     logger.info("Parameter sweep complete")

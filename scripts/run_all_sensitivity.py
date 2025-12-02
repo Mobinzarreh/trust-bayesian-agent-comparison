@@ -12,6 +12,7 @@ Parameters analyzed:
 6. LAMBDA_SURPRISE (surprise penalty multiplier)
 7. INVERSE_TEMPERATURE (exploration-exploitation trade-off)
 8. INITIAL_X (initial signal/belief about partner cooperation)
+9. T_INIT (initial trust level)
 
 Usage:
     python scripts/run_all_sensitivity.py
@@ -93,6 +94,11 @@ PARAMETER_CONFIGS = {
         'default': INITIAL_X_DEFAULT,
         'description': 'Initial signal (stag indifference threshold)'
     },
+    't_init': {
+        'grid': np.array([0.1, 0.5, 1.0, 5.0]),
+        'default': 0.0,
+        'description': 'Initial trust level (confidence in signal)'
+    },
 }
 
 
@@ -124,6 +130,7 @@ def run_single_parameter_sweep(param_name: str, results_base_dir: Path):
         'lambda_surprise_grid': np.array([LAMBDA_SURPRISE]),
         'inverse_temperature_grid': np.array([INVERSE_TEMPERATURE]),
         'initial_x_grid': np.array([INITIAL_X_DEFAULT]),
+        't_init_grid': np.array([0.0]),
         'seeds': SENSITIVITY_SEEDS,
     }
     

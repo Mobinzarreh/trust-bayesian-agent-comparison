@@ -112,6 +112,7 @@ LOSS_AVERSION_GRID = np.linspace(1.0, 5.0, 5)
 LAMBDA_SURPRISE_GRID = np.linspace(0.0, 1.0, 4)
 INVERSE_TEMPERATURE_GRID = np.array([0.5, 2.0, 5.0, 10.0])  # Exploration-exploitation trade-off
 INITIAL_X_GRID = np.array([0.2, 0.5, 0.66, 0.9])  # Initial signal values (corresponds to stag_indifference_threshold)
+T_INIT_GRID = np.array([0.1, 0.5, 1.0, 5.0])  # Initial trust level (confidence in initial signal)
 
 # Parallel processing
 N_JOBS = -1                # Use all available cores
