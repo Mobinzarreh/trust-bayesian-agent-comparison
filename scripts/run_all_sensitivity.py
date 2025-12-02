@@ -90,9 +90,9 @@ PARAMETER_CONFIGS = {
         'description': 'Exploration-exploitation trade-off'
     },
     'initial_x': {
-        'grid': np.array([0.2, 0.5, 0.66, 0.9]),
+        'grid': np.array([0.2, 0.33, 0.5, 0.9]),
         'default': INITIAL_X_DEFAULT,
-        'description': 'Initial signal (stag indifference threshold)'
+        'description': 'Initial signal (normalized deviation loss u-i)'
     },
     't_init': {
         'grid': np.array([0.1, 0.5, 1.0, 5.0]),

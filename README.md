@@ -49,7 +49,7 @@ This study implements and compares two types of learning agents in repeated stag
 | **Total Payoff** | Cumulative reward over all rounds | Higher is better (overall performance) |
 
 ### Parameter Sensitivity Results
-Complete sensitivity analysis of 7 parameters across 5 partner types:
+Complete sensitivity analysis of **9 parameters** across 5 partner types:
 - **eta** (learning rate): [0.1, 0.3, 0.5, 0.7, 0.9]
 - **memory_discount**: [0.5, 0.7, 0.8, 0.9, 0.95]
 - **trust_discount**: [0.5, 0.7, 0.8, 0.9, 0.95]
@@ -57,6 +57,13 @@ Complete sensitivity analysis of 7 parameters across 5 partner types:
 - **loss_aversion**: [1.0, 1.5, 2.0, 3.0, 5.0]
 - **lambda_surprise**: [0.0, 0.25, 0.5, 0.75, 1.0]
 - **inverse_temperature**: [0.5, 2.0, 5.0, 10.0]
+- **initial_x** (1 - normalized deviation loss u-i): [0.2, 0.33, 0.5, 0.9]
+- **t_init** (initial trust): [0.1, 0.5, 1.0, 5.0]
+
+### Advanced Analysis Features
+- **Parameter Effect Size Analysis**: Quantifies which parameters actually matter (HIGH/MEDIUM/LOW impact classification)
+- **Interaction Analysis**: 15-heatmap visualization of `initial_x × t_init` interactions across all partners and metrics
+- **Optimal Parameter Recommendations**: Partner-specific parameter tuning suggestions
 
 ## 📁 Project Structure
 
@@ -79,7 +86,17 @@ trust-bayesian-agent-comparison/
 │   ├── experiments/                 # Individual experiment CSVs
 │   ├── summaries/                   # Summary comparison tables
 │   ├── sensitivity_*/               # Parameter sensitivity results
+│   ├── sensitivity_interaction_x_t/ # Signal × trust interaction results
 │   ├── figures/                     # Generated visualizations
+│   │   ├── interaction_x_t_heatmaps.png    # ⭐ New: 15-heatmap interaction analysis
+│   │   ├── parameter_effect_sizes.png      # ⭐ New: Effect size heatmaps
+│   │   ├── focal_expected_p_evolution.png
+│   │   ├── focal_signal_evolution.png
+│   │   ├── focal_trust_evolution.png
+│   │   ├── focal_final_distributions.png
+│   │   ├── belief_trajectories.png
+│   │   ├── cooperation_rates.png
+│   │   └── payoff_advantage.png
 │   └── rounds_analysis/             # Rounds effect analysis
 ├── 🏗️ trust_bayesian_agent_comparison/  # Source code
 │   ├── agents/                      # Agent implementations
@@ -102,13 +119,13 @@ trust-bayesian-agent-comparison/
 ### Option 1: Demo Mode (Fast, 5 minutes)
 ```bash
 # Run quick demo with 5 partners, 10 Monte Carlo runs each
-python run_demo.py
+python scripts/run_demo.py
 ```
 
 ### Option 2: Full Study (Complete, 30-60 minutes)
 ```bash
 # Run comprehensive study with 13 partners, 300 Monte Carlo runs each
-python run_full_study.py
+python scripts/run_full_study.py
 ```
 
 ### Option 3: Sensitivity Analysis (Complete parameter sweep)
@@ -147,11 +164,29 @@ python scripts/run_all_sensitivity.py
 | **loss_aversion** | Betrayal penalty multiplier (λ) | [1.0, 5.0] | 2.0 |
 | **lambda_surprise** | Surprise penalty multiplier (μ) | [0.0, 1.0] | 0.5 |
 | **inverse_temperature** | Exploration-exploitation balance | [0.5, 10.0] | 2.0 |
+| **initial_x** | Initial signal (normalized deviation loss u-i) | [0.2, 0.33, 0.5, 0.9] | 0.33 |
+| **t_init** | Initial trust/confidence | [0.1, 5.0] | 1.0 |
+
+### Advanced Analysis Features
+
+#### Parameter Effect Size Analysis
+- **Effect Size Calculation**: `(max - min) / mean × 100%` for each parameter × partner × metric
+- **Impact Classification**: 
+  - 🔴 **HIGH IMPACT** (>10% effect): Core parameters driving behavior
+  - 🟡 **MEDIUM IMPACT** (3-10% effect): Worth considering for optimization
+  - 🟢 **LOW IMPACT** (<3% effect): Candidates for fixed defaults
+- **Model Simplification Guidance**: Identifies parameters that can be safely fixed
+
+#### Interaction Analysis
+- **15-Heatmap Visualization**: `initial_x × t_init` interactions across 5 partners × 3 metrics
+- **Signal × Trust Dynamics**: Shows how prior beliefs and confidence interact
+- **Partner-Specific Patterns**: Reveals context-dependent parameter effects
 
 ### Key Insights
 - **Trust-based agent** shows robust performance across parameter ranges
 - **Parameter interactions** exist but single-parameter optimization provides good baselines
 - **Partner-specific optimization** often yields better results than universal settings
+- **Effect size analysis** reveals which parameters truly matter for model behavior
 
 ## 📁 Results Organization
 
@@ -209,19 +244,19 @@ pip install numpy pandas matplotlib seaborn scipy joblib
 
 ```bash
 # Quick demo (5 minutes)
-python run_demo.py
+python scripts/run_demo.py
 
 # Full production study (30-60 minutes)
-python run_full_study.py
+python scripts/run_full_study.py
 
 # Sensitivity analysis for all parameters (15-20 minutes)
 python scripts/run_all_sensitivity.py
 
 # Analyze effect of interaction rounds (10-15 minutes)
-python run_rounds_analysis.py
+python scripts/run_rounds_analysis.py
 
 # View all comparison tables
-python view_all_tables.py
+python scripts/view_all_tables.py
 ```
 
 ### Jupyter Notebooks
