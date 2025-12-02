@@ -11,6 +11,7 @@ Parameters analyzed:
 5. LOSS_AVERSION (betrayal penalty multiplier)
 6. LAMBDA_SURPRISE (surprise penalty multiplier)
 7. INVERSE_TEMPERATURE (exploration-exploitation trade-off)
+8. INITIAL_X (initial signal/belief about partner cooperation)
 
 Usage:
     python scripts/run_all_sensitivity.py
@@ -27,8 +28,12 @@ sys.path.insert(0, str(project_root))
 from trust_bayesian_agent_comparison.analysis.sensitivity import SensitivityAnalysisManager
 from trust_bayesian_agent_comparison.config import (
     ETA, MEMORY_DISCOUNT, TRUST_DISCOUNT, TRUST_SMOOTHING,
-    LOSS_AVERSION, LAMBDA_SURPRISE, INVERSE_TEMPERATURE, SENSITIVITY_SEEDS
+    LOSS_AVERSION, LAMBDA_SURPRISE, INVERSE_TEMPERATURE, SENSITIVITY_SEEDS,
+    stag_indifference_threshold
 )
+
+# Default initial_x = 1 - stag_indifference_threshold (normalized deviation loss)
+INITIAL_X_DEFAULT = 1 - stag_indifference_threshold()
 from trust_bayesian_agent_comparison.partners import (
     SingleCyclePartner,
     GradualDeteriorationPartner,
@@ -83,6 +88,11 @@ PARAMETER_CONFIGS = {
         'default': INVERSE_TEMPERATURE,
         'description': 'Exploration-exploitation trade-off'
     },
+    'initial_x': {
+        'grid': np.array([0.2, 0.5, 0.66, 0.9]),
+        'default': INITIAL_X_DEFAULT,
+        'description': 'Initial signal (stag indifference threshold)'
+    },
 }
 
 
@@ -113,6 +123,7 @@ def run_single_parameter_sweep(param_name: str, results_base_dir: Path):
         'loss_aversion_grid': np.array([LOSS_AVERSION]),
         'lambda_surprise_grid': np.array([LAMBDA_SURPRISE]),
         'inverse_temperature_grid': np.array([INVERSE_TEMPERATURE]),
+        'initial_x_grid': np.array([INITIAL_X_DEFAULT]),
         'seeds': SENSITIVITY_SEEDS,
     }
     
