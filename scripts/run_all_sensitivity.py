@@ -219,7 +219,7 @@ def main():
     print(f"  - results/sensitivity_summary.csv")
     
     print("\nNext steps:")
-    print("  1. Open notebooks/All_Parameters_Sensitivity_Analysis.ipynb")
+    print("  1. Open notebooks/Parameter_Sensitivity_Analysis.ipynb")
     print("  2. Visualize results for each parameter")
     print("  3. Compare optimal configurations across partners")
 
