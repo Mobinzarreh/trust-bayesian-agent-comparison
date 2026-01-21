@@ -90,7 +90,7 @@ class BeliefDrivenPartnerBase:
     
     def _expected_choice_from_signal(self, x: float) -> int:
         """Predict action from signal (threshold at 0.5)."""
-        return 1 if x > 0.5 else 0
+        return 1 if x >= 0.5 else 0
     
     def _update_trust(self, observed_action: int):
         """
@@ -199,13 +199,13 @@ class AdaptivePartner(BeliefDrivenPartnerBase):
     """
     Adaptive partner that mirrors agent's expected behavior.
     
-    Cooperates when it predicts agent will cooperate (x_hat > 0.5),
-    defects when it predicts agent will defect (x_hat ≤ 0.5).
+    Cooperates when it predicts agent will cooperate (x_hat >= 0.5),
+    defects when it predicts agent will defect (x_hat < 0.5).
     """
     
     def decide(self, round_num: int, last_agent_choice: int = None) -> int:
         """Cooperate if predicting agent will cooperate."""
-        return 1 if self.x_hat > 0.5 else 0
+        return 1 if self.x_hat >= 0.5 else 0
 
 
 class StrategicCheaterPartner(BeliefDrivenPartnerBase):
@@ -243,4 +243,4 @@ class ExpectationViolationPartner(BeliefDrivenPartnerBase):
     
     def decide(self, round_num: int, last_agent_choice: int = None) -> int:
         """Choose opposite of predicted agent action."""
-        return 0 if self.x_hat > 0.5 else 1
+        return 0 if self.x_hat >= 0.5 else 1

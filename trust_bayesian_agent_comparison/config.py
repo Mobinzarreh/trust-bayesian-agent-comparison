@@ -67,21 +67,21 @@ DECISION_THRESHOLD = stag_indifference_threshold()
 # The agent maintains two state variables:
 #   - x (signal): Expected cooperation rate, updated via EWMA
 #   - t (trust): Confidence/precision in the signal, updated via consistency measure
-ETA = 0.3                  # Learning rate for signal (x) update via EWMA: x_new = x + η*(obs - x)
+ETA = 0.7                  # Learning rate for signal (x) update via EWMA: x_new = x + η*(obs - x)
 LEARNING_RATE_T = 0.2      # Learning rate for trust (t) update: t_new = (1-α)*t + α*target
                            # Note: This is implemented as 'trust_smoothing' parameter in FocalAgent
 NOISE_SIGMA = 0.02         # Gaussian noise for exploration
 
 # Trust-based agent defaults
 MEMORY_DISCOUNT = 0.9      # Recency weighting for signal update (γ_x)
-TRUST_DISCOUNT = 0.80       # Recency weighting for trust update (γ_t)
+TRUST_DISCOUNT = 0.9      # Recency weighting for trust update (γ_t)
 TRUST_SMOOTHING = LEARNING_RATE_T  # Alias: smoothing factor = learning rate for trust
 TRUST_MIN = 0.0            # Minimum trust level
 TRUST_MAX = 10.0           # Maximum trust level
 EPS = 1                  # Small constant for Beta distribution
 
 # Asymmetric loss parameters
-LOSS_AVERSION = 2.0        # Betrayal penalty multiplier (λ)
+LOSS_AVERSION = 3.0        # Betrayal penalty multiplier (λ)
 LAMBDA_SURPRISE = 0.5      # Surprise penalty multiplier (μ)
 
 # Decision-making

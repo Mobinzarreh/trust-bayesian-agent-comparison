@@ -17,6 +17,8 @@ from .reactive import (
     TitForTatCooperatePartner,
     GrimTriggerPartner,
     SuspiciousTitForTatPartner,
+    PavlovPartner,
+    TitForTatDefectPartner,
 )
 
 # Belief-driven strategies (mirror focal agent dynamics)
@@ -24,6 +26,7 @@ from .belief_driven import (
     BeliefDrivenPartnerBase,
     StrategicCheaterPartner,
     ExpectationViolationPartner,
+    AdaptivePartner,
 )
 
 __all__ = [
@@ -39,8 +42,11 @@ __all__ = [
     'TitForTatCooperatePartner',
     'GrimTriggerPartner',
     'SuspiciousTitForTatPartner',
+    'PavlovPartner',
+    'TitForTatDefectPartner',
     # Belief-driven
     'BeliefDrivenPartnerBase',
     'StrategicCheaterPartner',
     'ExpectationViolationPartner',
+    'AdaptivePartner',
 ]

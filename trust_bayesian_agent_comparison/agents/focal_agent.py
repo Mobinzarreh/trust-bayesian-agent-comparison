@@ -145,7 +145,7 @@ class FocalAgent(BaseAgent):
         Returns:
             float: Updated trust level
         """
-        expected = 1 if self.x > 0.5 else 0
+        expected = 1 if self.x >= 0.5 else 0
         obs = int(partner_choice)
         
         is_match = 1.0 if (obs == expected) else 0.0
