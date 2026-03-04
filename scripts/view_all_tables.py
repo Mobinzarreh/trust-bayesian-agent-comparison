@@ -37,6 +37,11 @@ tables = [
         'title': 'TOTAL PAYOFF COMPARISON',
         'file': 'total_payoff_comparison.csv',
         'description': 'KPI: Sum of Payoffs over all rounds - HIGHER IS BETTER'
+    },
+    {
+        'title': 'AVERAGE PAYOFF PER ROUND COMPARISON',
+        'file': 'average_payoff_comparison.csv',
+        'description': 'KPI: Mean Payoff per Round (scale-independent, 0-4 range) - HIGHER IS BETTER'
     }
 ]
 

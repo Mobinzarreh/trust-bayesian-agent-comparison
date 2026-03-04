@@ -60,6 +60,13 @@ def total_payoff(df: pd.DataFrame) -> float:
     return float(df["agent_payoff"].sum())
 
 
+def average_payoff(df: pd.DataFrame) -> float:
+    """Calculate average agent payoff per round (scale-independent)."""
+    if "agent_payoff" not in df.columns:
+        df = calculate_payoffs(df)
+    return float(df["agent_payoff"].mean())
+
+
 def time_to_threshold(
     df: pd.DataFrame,
     p_star: Optional[float] = None,

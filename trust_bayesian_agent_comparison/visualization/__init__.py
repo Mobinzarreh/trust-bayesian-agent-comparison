@@ -68,6 +68,7 @@ class MonteCarloVisualizer:
         self.create_mutual_cooperation_table()
         self.create_failed_collaboration_table()
         self.create_total_payoff_table()
+        self.create_average_payoff_table()
         
         print(f"\n✓ All visualizations saved to: {self.figures_dir}/")
     
@@ -612,3 +613,77 @@ class MonteCarloVisualizer:
         
         # Save
         display_df.to_csv(RESULTS_DIR / 'total_payoff_comparison.csv', index=False)
+
+    def create_average_payoff_table(self):
+        """Create average payoff per round comparison table (scale-independent KPI)."""
+        print("\n" + "="*130)
+        print("MONTE CARLO: AVERAGE PAYOFF PER ROUND COMPARISON")
+        num_runs = len(self.results[list(self.results.keys())[0]]['focal']['run_id'].unique())
+        num_rounds = self.results[list(self.results.keys())[0]]['focal']['round'].max() + 1
+        print(f"Based on {num_runs} runs with paired seeds per partner")
+        print(f"KPI: Mean Payoff per Round over {num_rounds} rounds (scale-independent) - HIGHER IS BETTER")
+        print("="*130)
+
+        comparison_data = []
+
+        for partner_name, data in self.results.items():
+            df_focal = data['focal']
+            df_bayesian = data['bayesian']
+
+            # Compute average payoff per run (mean across rounds)
+            focal_payoffs = df_focal.groupby('run_id')['agent_payoff'].mean()
+            bayesian_payoffs = df_bayesian.groupby('run_id')['agent_payoff'].mean()
+
+            # Statistics
+            focal_mean = focal_payoffs.mean()
+            focal_std = focal_payoffs.std()
+            bayesian_mean = bayesian_payoffs.mean()
+            bayesian_std = bayesian_payoffs.std()
+            difference = focal_mean - bayesian_mean
+
+            # Statistical test
+            t_stat, p_value = stats.ttest_rel(focal_payoffs, bayesian_payoffs)
+
+            # Significance
+            sig = '***' if p_value < 0.001 else '**' if p_value < 0.01 else '*' if p_value < 0.05 else 'ns'
+
+            # Percent trust better (higher payoff is better)
+            pct_trust_better = (focal_payoffs > bayesian_payoffs).mean()
+
+            comparison_data.append({
+                'Partner Strategy': partner_name,
+                'Trust-Based Mean': f"{focal_mean:.2f}",
+                'Trust-Based Std': f"{focal_std:.2f}",
+                'Bayesian Mean': f"{bayesian_mean:.2f}",
+                'Bayesian Std': f"{bayesian_std:.2f}",
+                'Difference (Trust - Bayes)': f"{difference:+.2f}",
+                'Sig': sig,
+                '% Trust Better': f"{pct_trust_better:.0%}",
+                'Diff_Raw': difference
+            })
+
+        comparison_df = pd.DataFrame(comparison_data)
+        comparison_df_sorted = comparison_df.sort_values('Diff_Raw', ascending=False)
+
+        display_df = comparison_df_sorted.drop('Diff_Raw', axis=1)
+        print(display_df.to_string(index=False))
+        print("="*130)
+
+        # Summary statistics
+        print("\nSUMMARY STATISTICS:")
+        trust_wins = (comparison_df['Diff_Raw'] > 0).sum()
+        bayes_wins = (comparison_df['Diff_Raw'] < 0).sum()
+        ties = (comparison_df['Diff_Raw'] == 0).sum()
+
+        print(f"Trust-Based Higher Avg Payoff:  {trust_wins} partners ({trust_wins/len(comparison_df):.0%})")
+        print(f"Bayesian Higher Avg Payoff:     {bayes_wins} partners ({bayes_wins/len(comparison_df):.0%})")
+        print(f"Ties:                           {ties} partners ({ties/len(comparison_df):.0%})")
+        print("\nSignificance levels: *** p<0.001, ** p<0.01, * p<0.05, ns = not significant")
+        print("\nINTERPRETATION:")
+        print("  - Values are payoff points per round (scale: 0-4 for Stag Hunt)")
+        print("  - Positive difference means Trust-Based earns MORE per round on average (better performance)")
+        print("  - Negative difference means Bayesian earns MORE per round on average (better performance)")
+        print("  - This metric is scale-independent and comparable across different numbers of rounds")
+
+        # Save
+        display_df.to_csv(RESULTS_DIR / 'average_payoff_comparison.csv', index=False)
